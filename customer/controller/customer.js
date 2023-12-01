@@ -78,7 +78,29 @@ try{
     res.status(500).send({ message : "no Customer updated" , status:0})
 }
 }
+
+// for all customers 
+const allCustomer = async (req,res,next) => {
+    try{
+       const allCustomer =  await Customer.find();
+       res.json(allCustomer)
+    }catch(err){
+        res.send({ message: "no customer"})
+    }
+}
+
+// for specfic customer
+const oneCustomer = async (req,res,next) => {
+    try{
+       const allCustomer =  await Customer.findOne({_id : req.params.id});
+       res.json(allCustomer)
+    }catch(err){
+        res.send({ message: "no customer"})
+    }
+}
 module.exports={
     createCustomer,
-    updateCustomer
+    updateCustomer,
+    allCustomer,
+    oneCustomer
 }

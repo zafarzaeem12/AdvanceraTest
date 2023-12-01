@@ -1,5 +1,7 @@
 const Product = require('../model/product')
 const Order = require('../model/order')
+const axios = require('axios')
+// const Customer = require('../../customer/model/customer')
 // for creating product
 const createnewProduct = async (req,res,next) => {
 try{
@@ -64,7 +66,6 @@ const createOrder = async (req,res,next) => {
             Customer_id , Product_id
         }
         const newOrder  = await Order.create(data);
-
         const proDetails = await Product.findById(Product_id);
 
         await Product.updateOne(
@@ -73,7 +74,7 @@ const createOrder = async (req,res,next) => {
                 stock : proDetails.stock - 1,
                 sold : proDetails.sold + 1
             },
-            $push:{soldDetails : newOrder._id}},
+            $push:{soldDetails :{ Order_id : newOrder._id}}},
             {new : true})
 
             res.status(201).json({ message : "Order created successfully",status:1})
@@ -96,7 +97,7 @@ try{
     const maxSoldResult = await Product.aggregate(data);
       const maxSold = maxSoldResult.length > 0 ? maxSoldResult[0].maxSold : 0;
       
-      const mostProducst = await Product.find({ sold:maxSold  });
+      const mostProducst = await Product.find({ sold:maxSold  })
       const totals = await Product.countDocuments()
   res.status(200).json({
     totalProducts : totals,
@@ -112,9 +113,58 @@ try{
     })
 }
 }
+
+const CustomerBuyMost = async (req,res,next) => {
+    try{
+    
+        const datas  = [
+            {
+              '$addFields': {
+                'soldDetails': {
+                  '$map': {
+                    'input': '$soldDetails', 
+                    'as': 'soldedDetails', 
+                    'in': {
+                      'Order_id': '$$soldedDetails.Order_id'
+                    }
+                  }
+                }
+              }
+            }, {
+              '$lookup': {
+                'from': 'orders', 
+                'localField': 'soldDetails.Order_id', 
+                'foreignField': '_id', 
+                'as': 'soldDetails.Order_id'
+              }
+            }, {    
+              '$sort': {
+                'soldDetails.Order_id.createdAt': -1
+              }
+            }
+          ]
+
+        const checkDetails =  await Product.aggregate(datas)
+    //     const checkeddetails =
+    //         checkDetails.map(async (data) =>
+    //           await Promise.all(
+    //             data.soldDetails.Order_id.map(async (item) =>
+    //               await axios.get(`http://localhost:3005/customer/api/get/${item.Customer_id}`)
+    //             )
+    //           )
+    //         )
+        
+          
+    //    // const checkeddetails =  checkDetails.map((data) => data.soldDetails.Order_id.map((datas) => datas.Customer_id.pop())
+       res.json(checkDetails)
+    }catch(err){
+        console.log(err)
+    }
+}
 module.exports={
     createnewProduct,
     updateProducts,
     createOrder,
-    getmostsoldedProducts
+    getmostsoldedProducts,
+    CustomerBuyMost
 }
