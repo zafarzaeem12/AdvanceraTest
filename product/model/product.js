@@ -10,7 +10,7 @@ const ProductSchema = new mongoose.Schema({
     stock: {
         type: Number,
         min:1,
-        max:100
+        max:10
     },
     activeFlag: {
         type: Boolean,
@@ -18,7 +18,17 @@ const ProductSchema = new mongoose.Schema({
     },
     category:{
         type:String
-    }
+    },
+    sold:{
+        type : Number,
+        default : 0
+    },
+    soldDetails:[{
+        Order_id : {
+            type : mongoose.Schema.Types.ObjectId,
+            ref : 'Order'
+        }
+    }]
     
 },
     { timestamps: true }

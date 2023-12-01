@@ -1,6 +1,6 @@
 const Product = require('../model/product')
-
-// for creatting product
+const Order = require('../model/order')
+// for creating product
 const createnewProduct = async (req,res,next) => {
 try{
     const {name , price , stock , activeFlag,category} = req.body;
@@ -55,7 +55,66 @@ try{
     res.status(500).send({ message : "no Product updated" , status:0})
 }
 }
+// for creating orders
+const createOrder = async (req,res,next) => {
+    try{
+        const { Customer_id , Product_id} = req.body
+
+        const data = {
+            Customer_id , Product_id
+        }
+        const newOrder  = await Order.create(data);
+
+        const proDetails = await Product.findById(Product_id);
+
+        await Product.updateOne(
+            {_id : proDetails._id},
+            {$set: { 
+                stock : proDetails.stock - 1,
+                sold : proDetails.sold + 1
+            },
+            $push:{soldDetails : newOrder._id}},
+            {new : true})
+
+            res.status(201).json({ message : "Order created successfully",status:1})
+        
+    }catch(err){
+        res.status(500).json({ message : "no Order",status:0})
+    }
+}
+// for getting most sold products
+const getmostsoldedProducts = async (req,res,next) => {
+try{
+    const data =[
+        {
+          $group: {
+            _id: null,
+            maxSold: { $max: '$sold' },
+          },
+        },
+      ]
+    const maxSoldResult = await Product.aggregate(data);
+      const maxSold = maxSoldResult.length > 0 ? maxSoldResult[0].maxSold : 0;
+      
+      const mostProducst = await Product.find({ sold:maxSold  });
+      const totals = await Product.countDocuments()
+  res.status(200).json({
+    totalProducts : totals,
+    total : mostProducst.length,
+    message : "Most Solded Products fetched",
+    status:1,
+    data : mostProducst
+})
+}catch(err){
+    res.status(500).json({
+        message : "no Products fetched",
+        status:0
+    })
+}
+}
 module.exports={
     createnewProduct,
-    updateProducts
+    updateProducts,
+    createOrder,
+    getmostsoldedProducts
 }

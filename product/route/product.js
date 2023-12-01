@@ -2,6 +2,8 @@ const router = require('express').Router();
 const { 
     createnewProduct,
     updateProducts,
+    createOrder,
+    getmostsoldedProducts,
     getallCustomer,
     getCustomerDetails,
     deleteCustomer
@@ -10,7 +12,8 @@ const {
 
 router.post('/create'  , createnewProduct);
 router.put('/update/:id', updateProducts);
-// router.get('/get' , getallCustomer);
+router.post('/order'  , createOrder);
+router.get('/get' , getmostsoldedProducts);
 // router.get('/get/:id' , getCustomerDetails);
 // router.delete('/delete/:id' , deleteCustomer);
 
