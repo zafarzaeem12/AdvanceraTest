@@ -8,10 +8,13 @@ const ProductSchema = new mongoose.Schema({
         type: Number,
     },
     stock: {
-        type: Number
+        type: Number,
+        min:1,
+        max:100
     },
     activeFlag: {
-        type: Boolean
+        type: Boolean,
+        default:true
     },
     category:{
         type:String

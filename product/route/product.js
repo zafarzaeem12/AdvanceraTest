@@ -1,17 +1,17 @@
 const router = require('express').Router();
-// const { 
-//     createCustomer,
-//     getallCustomer,
-//     getCustomerDetails,
-//     updateCustomer,
-//     deleteCustomer
-// } = require('../controller/Customers')
+const { 
+    createnewProduct,
+    updateProducts,
+    getallCustomer,
+    getCustomerDetails,
+    deleteCustomer
+} = require('../controller/product')
 
 
-// router.post('/create' , File.customer , createCustomer);
+router.post('/create'  , createnewProduct);
+router.put('/update/:id', updateProducts);
 // router.get('/get' , getallCustomer);
 // router.get('/get/:id' , getCustomerDetails);
-// router.put('/update/:id' , File.customer, updateCustomer);
 // router.delete('/delete/:id' , deleteCustomer);
 
 
